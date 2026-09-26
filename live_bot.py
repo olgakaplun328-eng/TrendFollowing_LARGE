@@ -12,7 +12,9 @@ s=requests.Session(); s.headers["User-Agent"]="TrendFollowing-Large/1.0"; last={
 def ema(x,n): return x.ewm(span=n,adjust=False).mean()
 def obv(df): return (np.sign(df.close.diff()).fillna(0)*df.volume).cumsum()
 def fetch(sym,tf,limit=250):
-    r=s.get(URL,params={"symbol":sym,"interval":tf,"limit":limit},timeout=15); r.raise_for_status()
+    # MEXC Spot API uses 60m for the hourly interval.
+    api_tf = "60m" if tf == "1h" else tf
+    r=s.get(URL,params={"symbol":sym,"interval":api_tf,"limit":limit},timeout=15); r.raise_for_status()
     d=r.json()
     rows = d if isinstance(d, list) else []
     vals = []
